@@ -22,12 +22,24 @@ function wrapped<T>(
     for (const [prop, f] of Object.entries(value)) {
       if (typeof f !== "function") continue;
       const func = (...args: unknown[]) => {
-        f(...args);
+        return f(...args);
       };
       out[name][prop] = (...args: unknown[]) => {
         const call: Call = { func, name, prop, args };
-        wrap(call);
+        return wrap(call);
       };
+    }
+  }
+  return out;
+}
+
+function createActions<T>(map: T) {
+  const out = new Map();
+  for (const [name, value] of Object.entries(map)) {
+    for (const [prop, f] of Object.entries(value)) {
+      if (typeof f !== "function") continue;
+      const key = `${name}.${prop}`;
+      out.set(key, f);
     }
   }
   return out;
@@ -48,7 +60,7 @@ export function create<Actors, Stores>(options: {
     stack: [],
     states,
     listeners: new Set(),
-    actions: new Map(),
+    actions: createActions(actors),
     actors: wrapped(actors, (call) => {
       state.queue.push(call);
       if (state.stack.length === 0) flush(state);
