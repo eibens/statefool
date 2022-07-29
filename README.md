@@ -1,9 +1,7 @@
 # eibens/statefool
 
-Given the number of existing state managers for web applications it would be
-foolish to build another.
-
-So here it is.
+Given the large number of existing state manager solutions for React it would be
+foolish to build another. So here it is.
 
 <!-- badges -->
 
@@ -15,9 +13,10 @@ So here it is.
 
 ## Examples
 
-- [minimal](examples/minimal): an application in a single file
-- [extensible](examples/extensible): the same application but with a folder
-  structure fit for a larger project
+- The [minimal example](examples/minimal) is an application in a single file.
+- The [extensible example](examples/extensible) implements the same
+  functionality as the minimal exaple, but with a folder structure fit for
+  larger projects
 
 Serve the examples at [localhost:8080](http://localhost:8080):
 
