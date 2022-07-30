@@ -1,12 +1,14 @@
 /** EXTERNALS **/
 
-import produce from "immer";
+import produce, { enableMapSet } from "immer";
 
 /** LOCALS **/
 
 import { State, StatesOf } from "./state.ts";
 
 /** MAIN **/
+
+enableMapSet();
 
 export function flush<Actors, Stores>(state: State<Actors, Stores>) {
   const { queue, states: oldStates } = state;
