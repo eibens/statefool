@@ -54,6 +54,7 @@ export type State<Actors, Stores> = {
   tick: number;
   queue: Call[];
   states: StatesOf<Stores>;
+  mutableStates?: StatesOf<Stores>;
   stack: unknown[];
   readonly actions: Map<string, (...args: unknown[]) => void>;
   readonly listeners: Set<Listener>;

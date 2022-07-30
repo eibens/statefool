@@ -66,10 +66,24 @@ export function create<Actors, Stores>(options: {
       if (state.stack.length === 0) flush(state);
     }) as ActorsOf<Actors>,
     models: wrapped(stores, (call) => {
-      const stateSlice = state.states[call.name as keyof Stores];
+      if (!state.mutableStates) {
+        throw new Error(
+          `cannot use model outside of flush: ${String(call.name)}.${
+            String(call.prop)
+          }`,
+        );
+      }
+      const stateSlice = state.mutableStates[call.name as keyof Stores];
       return call.func(stateSlice, ...call.args);
     }) as ModelsOf<Stores>,
     stores: wrapped(stores, (call) => {
+      if (state.mutableStates) {
+        throw new Error(
+          `cannot use store during flush: ${String(call.name)}.${
+            String(call.prop)
+          }`,
+        );
+      }
       const stateSlice = state.states[call.name as keyof Stores];
       return call.func(stateSlice, ...call.args);
     }) as StoresOf<Stores>,
