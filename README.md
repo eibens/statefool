@@ -14,9 +14,8 @@ foolish to build another. So here it is.
 ## Examples
 
 - The [minimal example](examples/minimal) is an application in a single file.
-- The [extensible example](examples/extensible) implements the same
-  functionality as the minimal exaple, but with a folder structure fit for
-  larger projects
+- The [extensible example](examples/extensible) is an application with a folder
+  structure fit for larger projects
 
 Serve the examples at [localhost:8080](http://localhost:8080):
 

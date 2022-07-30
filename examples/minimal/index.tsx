@@ -23,6 +23,23 @@ const number = {
   sub(state: NumberState, value: number) {
     state.value -= value;
   },
+  reset(state: NumberState) {
+    state.value = 0;
+  },
+};
+
+type FlagState = {
+  value: boolean;
+};
+
+const flag = {
+  get: (state: FlagState) => state.value,
+  set: (state: FlagState) => {
+    state.value = true;
+  },
+  unset: (state: FlagState) => {
+    state.value = false;
+  },
 };
 
 // ACTORS
@@ -54,6 +71,17 @@ const App = {
     getActor("Counter1").decrement();
     getActor("Counter2").decrement();
   },
+  requestReset() {
+    getModel("resetting").set();
+    setTimeout(() => {
+      getActor("App").handleReset();
+    }, 3000);
+  },
+  handleReset() {
+    getModel("resetting").unset();
+    getModel("number1").reset();
+    getModel("number2").reset();
+  },
 };
 
 // INSTANCE
@@ -68,6 +96,7 @@ const {
   stores: {
     number1: number,
     number2: number,
+    resetting: flag,
   },
   actors: {
     App,
@@ -77,6 +106,7 @@ const {
   states: {
     number1: { value: 0 },
     number2: { value: 0 },
+    resetting: { value: false },
   },
 });
 
@@ -97,6 +127,8 @@ function CounterComponent(props: {
 }
 
 function AppComponent(props: {
+  resetting: boolean;
+  onReset: () => void;
   onIncrementAll: () => void;
   onDecrementAll: () => void;
 }) {
@@ -106,6 +138,9 @@ function AppComponent(props: {
       <Counter2Container />
       <button onClick={props.onIncrementAll}>Increment All</button>
       <button onClick={props.onDecrementAll}>Decrement All</button>
+      <button onClick={props.onReset} disabled={props.resetting}>
+        Reset (async)
+      </button>
     </div>
   );
 }
@@ -136,11 +171,14 @@ const Counter2Container = update(() => {
 
 const AppContainer = update(function App() {
   const App = getActor("App");
+  const resetting = getStore("resetting");
 
   return render(AppComponent, {
+    resetting: resetting.get(),
+    onReset: App.requestReset,
     onIncrementAll: App.incrementAll,
     onDecrementAll: App.decrementAll,
-  });
+  }, (props) => [props.resetting]);
 });
 
 /** MAIN **/
