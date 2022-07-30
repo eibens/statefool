@@ -1,5 +1,6 @@
 /** LOCALS **/
 
+import { createError } from "./create_error.ts";
 import { flush } from "./flush.ts";
 import {
   ActorsOf,
@@ -62,12 +63,16 @@ export function create<Actors, Stores>(options: {
     listeners: new Set(),
     actions: createActions(actors),
     actors: wrapped(actors, (call) => {
-      state.queue.push(call);
+      state.queue.push({
+        ...call,
+        prev: state.stack[state.stack.length - 1],
+      });
       if (state.stack.length === 0) flush(state);
     }) as ActorsOf<Actors>,
     models: wrapped(stores, (call) => {
       if (!state.mutableStates) {
-        throw new Error(
+        throw createError(
+          state,
           `cannot use model outside of flush: ${String(call.name)}.${
             String(call.prop)
           }`,
@@ -77,13 +82,9 @@ export function create<Actors, Stores>(options: {
       return call.func(stateSlice, ...call.args);
     }) as ModelsOf<Stores>,
     stores: wrapped(stores, (call) => {
-      if (state.mutableStates) {
-        throw new Error(
-          `cannot use store during flush: ${String(call.name)}.${
-            String(call.prop)
-          }`,
-        );
-      }
+      // NOTE: Stores are always available as a snapshot of the previous states.
+      // This is to allow for container updates triggered by out-of-loop ops,
+      // for example, a component that updates every animation frame.
       const stateSlice = state.states[call.name as keyof Stores];
       return call.func(stateSlice, ...call.args);
     }) as StoresOf<Stores>,

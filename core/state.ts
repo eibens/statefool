@@ -44,6 +44,7 @@ export type Listener = (
 ) => void;
 
 export type Call = {
+  prev?: Call;
   func: (...args: unknown[]) => void;
   name: PropertyKey;
   prop: PropertyKey;
@@ -55,7 +56,7 @@ export type State<Actors, Stores> = {
   queue: Call[];
   states: StatesOf<Stores>;
   mutableStates?: StatesOf<Stores>;
-  stack: unknown[];
+  stack: Call[];
   readonly actions: Map<string, (...args: unknown[]) => void>;
   readonly listeners: Set<Listener>;
   readonly actors: ActorsOf<Actors>;
