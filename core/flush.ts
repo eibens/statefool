@@ -1,6 +1,6 @@
 /** EXTERNALS **/
 
-import produce from "https://esm.sh/immer@9.0.15";
+import produce from "immer";
 
 /** LOCALS **/
 
