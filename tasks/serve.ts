@@ -54,7 +54,7 @@ if (import.meta.main) {
   });
 
   app.listen({
-    port: 8080,
+    port: 8081,
     hostname: "localhost",
   });
 }

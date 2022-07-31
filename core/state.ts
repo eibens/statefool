@@ -1,5 +1,7 @@
 /** MAIN **/
 
+export type Id = string;
+
 export type StateOf<M> = M[keyof M] extends
   (state: infer State, ...args: infer _Args) => void ? State : never;
 
@@ -9,34 +11,23 @@ export type ActorOf<M> = {
     : never;
 };
 
-export type ModelOf<M> = {
+export type StoreOf<M> = {
   [K in keyof M]: M[K] extends
     (state: infer _State, ...args: infer Args) => infer Return
     ? (...args: Args) => Return
     : never;
 };
 
-export type StoreOf<M> = {
-  readonly [K in keyof M]: M[K] extends
-    (state: infer _State, ...args: infer Args) => infer Return
-    ? Return extends void ? never : (...args: Args) => Return
-    : never;
-};
-
-export type StatesOf<M> = {
-  [K in keyof M]: StateOf<M[K]>;
-};
-
 export type ActorsOf<M> = {
   [K in keyof M]: ActorOf<M[K]>;
 };
 
-export type ModelsOf<M> = {
-  [K in keyof M]: ModelOf<M[K]>;
+export type StatesOf<M> = {
+  [K in keyof M]: Record<Id, StateOf<M[K]>>;
 };
 
 export type StoresOf<M> = {
-  [K in keyof M]: StoreOf<M[K]>;
+  [K in keyof M]: Record<Id, StoreOf<M[K]>>;
 };
 
 export type Listener = (
@@ -57,9 +48,9 @@ export type State<Actors, Stores> = {
   states: StatesOf<Stores>;
   mutableStates?: StatesOf<Stores>;
   stack: Call[];
+  readonly schema: Stores;
   readonly actions: Map<string, (...args: unknown[]) => void>;
   readonly listeners: Set<Listener>;
   readonly actors: ActorsOf<Actors>;
-  readonly models: ModelsOf<Stores>;
   readonly stores: StoresOf<Stores>;
 };

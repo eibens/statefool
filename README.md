@@ -26,4 +26,3 @@ deno task serve
 ## Future Work
 
 - Stack trace, error handling, and logging.
-- Access stores via IDs to allow for collections.

@@ -1,15 +1,7 @@
 /** LOCALS **/
 
-import { createError } from "./create_error.ts";
 import { flush } from "./flush.ts";
-import {
-  ActorsOf,
-  Call,
-  ModelsOf,
-  State,
-  StatesOf,
-  StoresOf,
-} from "./state.ts";
+import { ActorsOf, Call, State, StatesOf, StoresOf } from "./state.ts";
 
 /** HELPERS **/
 
@@ -50,17 +42,25 @@ function createActions<T>(map: T) {
 
 export function create<Actors, Stores>(options: {
   actors: Actors;
-  stores: Stores;
-  states: StatesOf<Stores>;
+  schema: Stores;
 }): State<Actors, Stores> {
-  const { actors, stores, states } = options;
+  const { actors, schema } = options;
+
+  const stores: Partial<StoresOf<Stores>> = {};
+  const states: Partial<StatesOf<Stores>> = {};
+  for (const name in schema) {
+    stores[name] = {};
+    states[name] = {};
+  }
 
   const state: State<Actors, Stores> = {
     tick: 0,
     queue: [],
     stack: [],
-    states,
     listeners: new Set(),
+    schema,
+    stores: stores as StoresOf<Stores>,
+    states: states as StatesOf<Stores>,
     actions: createActions(actors),
     actors: wrapped(actors, (call) => {
       state.queue.push({
@@ -69,25 +69,6 @@ export function create<Actors, Stores>(options: {
       });
       if (state.stack.length === 0) flush(state);
     }) as ActorsOf<Actors>,
-    models: wrapped(stores, (call) => {
-      if (!state.mutableStates) {
-        throw createError(
-          state,
-          `cannot use model outside of flush: ${String(call.name)}.${
-            String(call.prop)
-          }`,
-        );
-      }
-      const stateSlice = state.mutableStates[call.name as keyof Stores];
-      return call.func(stateSlice, ...call.args);
-    }) as ModelsOf<Stores>,
-    stores: wrapped(stores, (call) => {
-      // NOTE: Stores are always available as a snapshot of the previous states.
-      // This is to allow for container updates triggered by out-of-loop ops,
-      // for example, a component that updates every animation frame.
-      const stateSlice = state.states[call.name as keyof Stores];
-      return call.func(stateSlice, ...call.args);
-    }) as StoresOf<Stores>,
   };
 
   return state;

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom-client";
+import { Id } from "../../core/state.ts";
 
 /** LOCALS **/
 
@@ -44,43 +45,39 @@ const flag = {
 
 // ACTORS
 
-const Counter1 = {
-  increment: () => {
-    getModel("number1").add(1);
+const Counter = {
+  increment: (id: Id) => {
+    getStore("number", id).add(1);
   },
-  decrement: () => {
-    getModel("number1").sub(1);
-  },
-};
-
-const Counter2 = {
-  increment: () => {
-    getModel("number2").add(1);
-  },
-  decrement: () => {
-    getModel("number2").sub(1);
+  decrement: (id: Id) => {
+    getStore("number", id).sub(1);
   },
 };
 
 const App = {
   incrementAll() {
-    getActor("Counter1").increment();
-    getActor("Counter2").increment();
+    const Counter = getActor("Counter");
+    for (const id in getStores("number")) {
+      Counter.increment(id);
+    }
   },
   decrementAll() {
-    getActor("Counter1").decrement();
-    getActor("Counter2").decrement();
+    const Counter = getActor("Counter");
+    for (const id in getStores("number")) {
+      Counter.decrement(id);
+    }
   },
   requestReset() {
-    getModel("resetting").set();
+    getStore("flag", "resetting").set();
     setTimeout(() => {
       getActor("App").handleReset();
     }, 3000);
   },
   handleReset() {
-    getModel("resetting").unset();
-    getModel("number1").reset();
-    getModel("number2").reset();
+    getStore("flag", "resetting").unset();
+    for (const id in getStores("number")) {
+      getStore("number", id).reset();
+    }
   },
 };
 
@@ -88,25 +85,19 @@ const App = {
 
 const {
   getActor,
-  getModel,
   getStore,
+  getStores,
+  insert,
   render,
   update,
 } = create({
-  stores: {
-    number1: number,
-    number2: number,
-    resetting: flag,
+  schema: {
+    number,
+    flag,
   },
   actors: {
     App,
-    Counter1,
-    Counter2,
-  },
-  states: {
-    number1: { value: 0 },
-    number2: { value: 0 },
-    resetting: { value: false },
+    Counter,
   },
 });
 
@@ -128,14 +119,19 @@ function CounterComponent(props: {
 
 function AppComponent(props: {
   resetting: boolean;
+  counters: Id[];
   onReset: () => void;
   onIncrementAll: () => void;
   onDecrementAll: () => void;
 }) {
   return (
     <div>
-      <Counter1Container />
-      <Counter2Container />
+      {props.counters.map((id) => (
+        <CounterContainer
+          key={id}
+          id={id}
+        />
+      ))}
       <button onClick={props.onIncrementAll}>Increment All</button>
       <button onClick={props.onDecrementAll}>Decrement All</button>
       <button onClick={props.onReset} disabled={props.resetting}>
@@ -147,34 +143,28 @@ function AppComponent(props: {
 
 // CONTAINERS
 
-const Counter1Container = update(() => {
-  const Counter = getActor("Counter1");
-  const number = getStore("number1");
+const CounterContainer = update((props: {
+  id: Id;
+}) => {
+  const { id } = props;
+  const Counter = getActor("Counter");
+  const number = getStore("number", id);
 
   return render(CounterComponent, {
     value: number.get(),
-    onIncrement: Counter.increment,
-    onDecrement: Counter.decrement,
-  }, (props) => [props.value]);
-});
-
-const Counter2Container = update(() => {
-  const Counter = getActor("Counter2");
-  const number = getStore("number2");
-
-  return render(CounterComponent, {
-    value: number.get(),
-    onIncrement: Counter.increment,
-    onDecrement: Counter.decrement,
+    onIncrement: () => Counter.increment(id),
+    onDecrement: () => Counter.decrement(id),
   }, (props) => [props.value]);
 });
 
 const AppContainer = update(function App() {
   const App = getActor("App");
-  const resetting = getStore("resetting");
+  const resetting = getStore("flag", "resetting");
+  const numbers = getStores("number");
 
   return render(AppComponent, {
     resetting: resetting.get(),
+    counters: Object.keys(numbers),
     onReset: App.requestReset,
     onIncrementAll: App.incrementAll,
     onDecrementAll: App.decrementAll,
@@ -184,6 +174,10 @@ const AppContainer = update(function App() {
 /** MAIN **/
 
 if (globalThis.document) {
+  insert("flag", "resetting", { value: false });
+  insert("number", "counter-1", { value: 0 });
+  insert("number", "counter-2", { value: 0 });
+
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);

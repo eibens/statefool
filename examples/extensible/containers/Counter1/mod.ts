@@ -7,7 +7,7 @@ import Component from "../../components/Counter.tsx";
 
 export default update(() => {
   const Counter = getActor("Counter1");
-  const number = getStore("number1");
+  const number = getStore("number", "number1");
 
   return render(Component, {
     value: number.get(),

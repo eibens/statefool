@@ -1,13 +1,13 @@
 /** LOCALS **/
 
 import * as Core from "./core/mod.ts";
+import { Id, StateOf } from "./core/mod.ts";
 
 /** MAIN **/
 
 export type CreateOptions<Actors, Stores> = {
   actors: Actors;
-  stores: Stores;
-  states: Core.StatesOf<Stores>;
+  schema: Stores;
 };
 
 export function create<Actors, Stores>(
@@ -18,12 +18,18 @@ export function create<Actors, Stores>(
     getActor: <Name extends keyof Actors>(
       name: Name,
     ) => Core.getActor(state, name),
-    getModel: <Name extends keyof Stores>(
-      name: Name,
-    ) => Core.getModel(state, name),
     getStore: <Name extends keyof Stores>(
       name: Name,
-    ) => Core.getStore(state, name),
+      id: string,
+    ) => Core.getStore(state, name, id),
+    getStores: <Name extends keyof Stores>(
+      name: Name,
+    ) => Core.getStores(state, name),
+    insert: <Name extends keyof Stores>(
+      name: Name,
+      id: Id,
+      data: StateOf<Stores[Name]>,
+    ) => Core.insert(state, name, id, data),
     render: <Props>(
       Component: React.ComponentType<Props>,
       props: Props,
