@@ -1,7 +1,7 @@
 {
   "tasks": {
     "ci": "deno fmt --check && deno lint && deno test",
-    "fix": "deno fmt && deno lint && deno test",
+    "fix": "deno fmt && deno lint && deno test --coverage=.cov && deno coverage .cov && rm -rf .cov",
     "serve": "deno run --allow-read --allow-net --allow-run=deno tasks/serve.ts"
   },
   "importMap": "import_map.json",
