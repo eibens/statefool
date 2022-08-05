@@ -14,7 +14,8 @@ export function flush<Actors, Stores>(state: State<Actors, Stores>) {
   const { queue, states: oldStates } = state;
   if (queue.length === 0) return;
 
-  state.states = produce(state.states, (states: StatesOf<Stores>) => {
+  let error: Error | null = null;
+  const newStates = produce(state.states, (states: StatesOf<Stores>) => {
     state.mutableStates = states;
     while (queue.length > 0) {
       const action = queue.shift();
@@ -24,11 +25,26 @@ export function flush<Actors, Stores>(state: State<Actors, Stores>) {
       const func = state.actions.get(key);
       if (func === undefined) return;
       state.stack.push(action);
-      func(...action.args);
+
+      try {
+        func(...action.args);
+      } catch (e) {
+        error = e;
+        state.stack = [];
+        break;
+      }
+
       state.stack.pop();
     }
+
     state.mutableStates = undefined;
   });
+
+  if (!error) {
+    state.states = newStates;
+  } else {
+    throw error;
+  }
 
   if (state.states !== oldStates) {
     state.tick++;
