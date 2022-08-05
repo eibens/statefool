@@ -14,7 +14,7 @@ function listFromCallstack(call?: Call) {
 }
 
 function stringifyCall(call: Call) {
-  return `> ${String(call.name)}.${String(call.prop)}`;
+  return `  - ${String(call.name)}.${String(call.prop)}`;
 }
 
 function stringifyCallStack(call: Call) {
@@ -30,5 +30,5 @@ export function createError<Actors, Stores>(
   message: string,
 ) {
   const stackTrace = stringifyCallStack(state.stack[state.stack.length - 1]);
-  return new Error(message + "\n" + stackTrace);
+  return new Error(message + "\n\n" + stackTrace);
 }

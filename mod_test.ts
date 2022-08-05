@@ -42,11 +42,7 @@ Deno.test("prevents state change when an error ocurrs during action", () => {
   });
 
   insert("store", "store", testStoreState);
-  try {
-    getActor("Actor").run();
-  } catch (error) {
-    assertEquals(error.message, "cancel this action");
-  }
+  getActor("Actor").run();
 
   const store = getStore("store", "store");
   assertEquals(store.getValue(), 0);

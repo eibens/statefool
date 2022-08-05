@@ -1,6 +1,7 @@
 /** EXTERNALS **/
 
 import produce, { enableMapSet } from "immer";
+import { createError } from "./create_error.ts";
 
 /** LOCALS **/
 
@@ -14,7 +15,8 @@ export function flush<Actors, Stores>(state: State<Actors, Stores>) {
   const { queue, states: oldStates } = state;
   if (queue.length === 0) return;
 
-  let error: Error | null = null;
+  let success = true;
+
   const newStates = produce(state.states, (states: StatesOf<Stores>) => {
     state.mutableStates = states;
     while (queue.length > 0) {
@@ -29,8 +31,12 @@ export function flush<Actors, Stores>(state: State<Actors, Stores>) {
       try {
         func(...action.args);
       } catch (e) {
-        error = e;
+        console.error(e);
+        const message =
+          "An error was thrown during an action. The original error is logged above.";
+        console.warn(createError(state, message).message);
         state.stack = [];
+        success = false;
         break;
       }
 
@@ -40,13 +46,8 @@ export function flush<Actors, Stores>(state: State<Actors, Stores>) {
     state.mutableStates = undefined;
   });
 
-  if (!error) {
+  if (success && newStates !== oldStates) {
     state.states = newStates;
-  } else {
-    throw error;
-  }
-
-  if (state.states !== oldStates) {
     state.tick++;
     for (const listener of state.listeners) {
       listener(state.tick);

@@ -79,6 +79,9 @@ const App = {
       getStore("number", id).reset();
     }
   },
+  throwError() {
+    throw new Error("this error was thrown intentionally");
+  },
 };
 
 // INSTANCE
@@ -123,6 +126,7 @@ function AppComponent(props: {
   onReset: () => void;
   onIncrementAll: () => void;
   onDecrementAll: () => void;
+  onThrowError: () => void;
 }) {
   return (
     <div>
@@ -137,6 +141,7 @@ function AppComponent(props: {
       <button onClick={props.onReset} disabled={props.resetting}>
         Reset (async)
       </button>
+      <button onClick={props.onThrowError}>Throw error</button>
     </div>
   );
 }
@@ -168,6 +173,7 @@ const AppContainer = update(function App() {
     onReset: App.requestReset,
     onIncrementAll: App.incrementAll,
     onDecrementAll: App.decrementAll,
+    onThrowError: App.throwError,
   }, (props) => [props.resetting]);
 });
 
