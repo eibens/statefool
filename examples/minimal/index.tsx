@@ -52,6 +52,16 @@ const Counter = {
   decrement: (id: Id) => {
     getStore("number", id).sub(1);
   },
+  create: () => {
+    const id = "counter-" + Math.random().toString(36).substring(2);
+
+    insert("number", id, {
+      value: 0,
+    });
+  },
+  remove: (id: Id) => {
+    remove("number", id);
+  },
 };
 
 const App = {
@@ -82,13 +92,6 @@ const App = {
   throwError() {
     throw new Error("this error was thrown intentionally");
   },
-  createCounter() {
-    const id = "counter-" + Math.random().toString(36).substring(2);
-
-    insert("number", id, {
-      value: 0,
-    });
-  },
 };
 
 // INSTANCE
@@ -98,6 +101,7 @@ const {
   getStore,
   getStores,
   insert,
+  remove,
   render,
   update,
 } = create({
@@ -117,12 +121,14 @@ function CounterComponent(props: {
   value: number;
   onIncrement: () => void;
   onDecrement: () => void;
+  onRemove: () => void;
 }) {
   return (
     <div>
       <button onClick={props.onIncrement}>Increment</button>
       <span>{props.value}</span>
       <button onClick={props.onDecrement}>Decrement</button>
+      <button onClick={props.onRemove}>Remove</button>
     </div>
   );
 }
@@ -168,11 +174,13 @@ const CounterContainer = update((props: {
     value: number.get(),
     onIncrement: () => Counter.increment(id),
     onDecrement: () => Counter.decrement(id),
+    onRemove: () => Counter.remove(id),
   }, (props) => [props.value]);
 });
 
 const AppContainer = update(function App() {
   const App = getActor("App");
+  const Counter = getActor("Counter");
   const resetting = getStore("flag", "resetting");
   const numbers = getStores("number");
 
@@ -183,7 +191,7 @@ const AppContainer = update(function App() {
     onIncrementAll: App.incrementAll,
     onDecrementAll: App.decrementAll,
     onThrowError: App.throwError,
-    onCreateCounter: App.createCounter,
+    onCreateCounter: Counter.create,
   }, (props) => [
     props.resetting,
     props.counters,

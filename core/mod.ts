@@ -5,6 +5,7 @@ export * from "./get_store.ts";
 export * from "./get_stores.ts";
 export * from "./insert.ts";
 export * from "./listen.ts";
+export * from "./remove.ts";
 export * from "./render.ts";
 export * from "./update.ts";
 export * from "./state.ts";

@@ -30,6 +30,10 @@ export function create<Actors, Stores>(
       id: Id,
       data: StateOf<Stores[Name]>,
     ) => Core.insert(state, name, id, data),
+    remove: <Name extends keyof Stores>(
+      name: Name,
+      id: Id,
+    ) => Core.remove(state, name, id),
     render: <Props>(
       Component: React.ComponentType<Props>,
       props: Props,
