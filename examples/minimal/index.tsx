@@ -82,6 +82,13 @@ const App = {
   throwError() {
     throw new Error("this error was thrown intentionally");
   },
+  createCounter() {
+    const id = "counter-" + Math.random().toString(36).substring(2);
+
+    insert("number", id, {
+      value: 0,
+    });
+  },
 };
 
 // INSTANCE
@@ -124,24 +131,26 @@ function AppComponent(props: {
   resetting: boolean;
   counters: Id[];
   onReset: () => void;
+  onCreateCounter: () => void;
   onIncrementAll: () => void;
   onDecrementAll: () => void;
   onThrowError: () => void;
 }) {
   return (
     <div>
-      {props.counters.map((id) => (
-        <CounterContainer
-          key={id}
-          id={id}
-        />
-      ))}
+      <button onClick={props.onCreateCounter}>New Counter</button>
       <button onClick={props.onIncrementAll}>Increment All</button>
       <button onClick={props.onDecrementAll}>Decrement All</button>
       <button onClick={props.onReset} disabled={props.resetting}>
         Reset (async)
       </button>
       <button onClick={props.onThrowError}>Throw error</button>
+      {props.counters.map((id) => (
+        <CounterContainer
+          key={id}
+          id={id}
+        />
+      ))}
     </div>
   );
 }
@@ -174,7 +183,11 @@ const AppContainer = update(function App() {
     onIncrementAll: App.incrementAll,
     onDecrementAll: App.decrementAll,
     onThrowError: App.throwError,
-  }, (props) => [props.resetting]);
+    onCreateCounter: App.createCounter,
+  }, (props) => [
+    props.resetting,
+    props.counters,
+  ]);
 });
 
 /** MAIN **/

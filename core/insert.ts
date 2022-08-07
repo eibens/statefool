@@ -11,7 +11,7 @@ export function insert<Actors, Stores, Name extends keyof Stores>(
   id: Id,
   data: StateOf<Stores[Name]>,
 ): StoreOf<Stores[Name]> {
-  const states = state.states[name];
+  const states = (state.mutableStates ?? state.states)[name];
   const stores = state.stores[name];
 
   if (id in stores) {
