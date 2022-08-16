@@ -4,7 +4,7 @@ import React from "react";
 
 /** MAIN **/
 
-export default function (props: {
+export function Counter(props: {
   value: number;
   onIncrement: () => void;
   onDecrement: () => void;

@@ -4,8 +4,7 @@ import React from "react";
 
 /** LOCALS **/
 
-import Counter1 from "../Counter1/mod.ts";
-import Counter2 from "../Counter2/mod.ts";
+import { Counter1, Counter2 } from "../mod.ts";
 
 /** MAIN **/
 

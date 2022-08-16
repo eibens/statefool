@@ -1,7 +1,7 @@
 /** LOCALS **/
 
 import { getActor, getStore, render, update } from "../../core.ts";
-import Component from "../../components/Counter.tsx";
+import { Counter as Component } from "../../components/mod.ts";
 
 /** MAIN **/
 

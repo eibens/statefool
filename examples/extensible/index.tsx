@@ -5,7 +5,7 @@ import { createRoot } from "react-dom-client";
 
 /** LOCALS **/
 
-import App from "./containers/App/mod.ts";
+import { App } from "./containers/mod.ts";
 import { insert } from "./core.ts";
 
 /** MAIN **/

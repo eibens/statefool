@@ -2,7 +2,8 @@
   "tasks": {
     "ci": "deno fmt --check && deno lint && deno test",
     "fix": "deno fmt && deno lint && deno test --coverage=.cov && deno coverage .cov && rm -rf .cov",
-    "serve": "deno run --allow-read --allow-net --allow-run=deno tasks/serve.ts"
+    "serve": "deno run --allow-read --allow-net --allow-run=deno tasks/serve.ts",
+    "example:gen": "deno run --allow-read --allow-write --allow-run=deno tasks/example.ts gen"
   },
   "importMap": "import_map.json",
   "compilerOptions": {
